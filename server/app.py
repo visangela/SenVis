@@ -20,31 +20,16 @@ app.config.from_object(__name__)
 CORS(app)
 
 
-# @app.route( '/get-post-data', methods=['POST'] )
-# def postRequest():
-#    k = int(request.get_json()['k'])
-#    resp = np.random.uniform(0, 10, k)
-#    print(resp.nbytes/1000000)
-#    return make_response(jsonify(dict(data=resp.tolist())))
-
-
-# @app.route('/ping', methods=['GET'])
-# def ping_pong():
-#     return jsonify('pong!')
-
-
 # =========================================================
 # ================ for prepared model =====================
 # =========================================================
 @app.route('/precom', methods=['POST'])
-# @cross_origin(origin='*', headers=['Content-Type','Authorization'])
 def com_pre():
     # if request.method == "POST":
     req_data = request.get_json()
     case = req_data['currentcase']
     functionn, axes = dataProcessing.functional(case)
     N, t, para = dataProcessing.data_processing(functionn, axes)
-    print (para)
 
     nfix = 4
 
@@ -52,14 +37,12 @@ def com_pre():
 
 
 @app.route('/presense', methods=['POST'])
-# @cross_origin(origin='*', headers=['Content-Type','Authorization'])
 def sen_pre():
     # if request.method == "POST":
     req_data = request.get_json()
     case = req_data['currentcase']
     functionn, axes = dataProcessing.functional(case)
     N, t, para = dataProcessing.data_processing(functionn, axes)
-    print (para)
 
     nfix = 4
 
@@ -67,7 +50,6 @@ def sen_pre():
 
 
 @app.route('/combinations', methods=['POST'])
-# @cross_origin(origin='*', headers=['Content-Type','Authorization'])
 def com_data():
     # if request.method == "POST":
     req_data = request.get_json()
@@ -76,7 +58,7 @@ def com_data():
         inputlist = req_data['variables']
     else: 
         inputlist = None
-    print(inputlist)
+
     functionn, axes = dataProcessing.functional(case)
     N, t, para = dataProcessing.data_processing(functionn, axes)
 
@@ -86,7 +68,6 @@ def com_data():
 
 
 @app.route('/sense', methods=['POST'])
-# @cross_origin(origin='*', headers=['Content-Type','Authorization'])
 def sen_data():
     # if request.method == "POST":
     req_data = request.get_json()
@@ -95,7 +76,7 @@ def sen_data():
         inputlist = req_data['variables']
     else: 
         inputlist = None
-    print(inputlist)
+
     functionn, axes = dataProcessing.functional(case)
     N, t, para = dataProcessing.data_processing(functionn, axes)
 
@@ -112,7 +93,6 @@ def sen_data():
 def com_model_pre():
     file = request.files['file']
     filename = file.filename
-    print(filename)
 
     modelname = os.path.splitext(filename)[0]
 
@@ -129,7 +109,6 @@ def com_model_pre():
 def sen_model_pre():
     file = request.files['file']
     filename = file.filename
-    print(filename)
 
     modelname = os.path.splitext(filename)[0]
 
@@ -146,19 +125,15 @@ def sen_model_pre():
 def com_model():
     file = request.files['file']
     filename = file.filename
-    print(filename)
-    # inputdata = request.form['json']
     inputdata = request.form['json']
     inputlist = json.loads(inputdata)
     inputlist = inputlist['variables']
-    print(inputlist)
 
     modelname = os.path.splitext(filename)[0]
 
     model = __import__(modelname)
     functionn, axes = model.get_model()
     N, t, para = dataProcessing.data_processing(functionn, axes)
-
 
     nfix = 4
 
@@ -169,12 +144,9 @@ def com_model():
 def sen_model():
     file = request.files['file']
     filename = file.filename
-    print(filename)
-    # inputdata = request.form['json']
     inputdata = request.form['json']
     inputlist = json.loads(inputdata)
     inputlist = inputlist['variables']
-    print(inputlist)
 
     modelname = os.path.splitext(filename)[0]
 
@@ -191,11 +163,9 @@ def sen_model():
 # ========= for special model - get fire spread ===========
 # =========================================================
 @app.route('/prefirecom', methods=['POST'])
-# @cross_origin(origin='*', headers=['Content-Type','Authorization'])
 def firecom_pre():
     file = request.files['file']
     filename = file.filename
-    print(filename)
 
     modelname = os.path.splitext(filename)[0]
 
@@ -209,11 +179,9 @@ def firecom_pre():
 
 
 @app.route('/prefiresense', methods=['POST'])
-# @cross_origin(origin='*', headers=['Content-Type','Authorization'])
 def firesen_pre():
     file = request.files['file']
     filename = file.filename
-    print(filename)
 
     modelname = os.path.splitext(filename)[0]
 
@@ -221,18 +189,15 @@ def firesen_pre():
     N, t, axes = model.get_model()
     para = [axes[n]['name'] for n in range(N)]
 
-
     nfix = 4
 
     return dataProcessing.data_prereading(N, nfix, t)
 
 
 @app.route('/firecom', methods=['POST'])
-# @cross_origin(origin='*', headers=['Content-Type','Authorization'])
 def firecom_data():
     file = request.files['file']
     filename = file.filename
-    print(filename)
     inputdata = request.form['json']
     inputlist = json.loads(inputdata)
     inputlist = inputlist['variables']
@@ -249,11 +214,9 @@ def firecom_data():
 
 
 @app.route('/firesense', methods=['POST'])
-# @cross_origin(origin='*', headers=['Content-Type','Authorization'])
 def firesen_data():
     file = request.files['file']
     filename = file.filename
-    print(filename)
     inputdata = request.form['json']
     inputlist = json.loads(inputdata)
     inputlist = inputlist['variables']
@@ -262,7 +225,6 @@ def firesen_data():
 
     model = __import__(modelname)
     N, t, axes = model.get_model()
-
 
     nfix = 4
 
