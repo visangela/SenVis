@@ -20,6 +20,7 @@ app.config.from_object(__name__)
 CORS(app)
 
 
+nfix = 4
 # =========================================================
 # ================ for prepared model =====================
 # =========================================================
@@ -31,8 +32,6 @@ def com_pre():
     functionn, axes = dataProcessing.functional(case)
     N, t, para = dataProcessing.data_processing(functionn, axes)
 
-    nfix = 4
-
     return dataProcessing.combination_data(N, nfix, para)
 
 
@@ -43,8 +42,6 @@ def sen_pre():
     case = req_data['currentcase']
     functionn, axes = dataProcessing.functional(case)
     N, t, para = dataProcessing.data_processing(functionn, axes)
-
-    nfix = 4
 
     return dataProcessing.data_prereading(N, nfix, t)
 
@@ -62,8 +59,6 @@ def com_data():
     functionn, axes = dataProcessing.functional(case)
     N, t, para = dataProcessing.data_processing(functionn, axes)
 
-    nfix = 4
-
     return dataProcessing.combination_data(N, nfix, para, inputlist)
 
 
@@ -79,8 +74,6 @@ def sen_data():
 
     functionn, axes = dataProcessing.functional(case)
     N, t, para = dataProcessing.data_processing(functionn, axes)
-
-    nfix = 4
 
     return dataProcessing.data_reading(N, nfix, t, inputlist)
 
@@ -100,8 +93,6 @@ def com_model_pre():
     functionn, axes = model.get_model()
     N, t, para = dataProcessing.data_processing(functionn, axes)
 
-    nfix = 4
-
     return dataProcessing.combination_data(N, nfix, para)
 
 
@@ -115,8 +106,6 @@ def sen_model_pre():
     model = __import__(modelname)
     functionn, axes = model.get_model()
     N, t, para = dataProcessing.data_processing(functionn, axes)
-
-    nfix = 4
 
     return dataProcessing.data_prereading(N, nfix, t)
 
@@ -135,8 +124,6 @@ def com_model():
     functionn, axes = model.get_model()
     N, t, para = dataProcessing.data_processing(functionn, axes)
 
-    nfix = 4
-
     return dataProcessing.combination_data(N, nfix, para, inputlist)
 
 
@@ -153,8 +140,6 @@ def sen_model():
     model = __import__(modelname)
     functionn, axes = model.get_model()
     N, t, para = dataProcessing.data_processing(functionn, axes)
-
-    nfix = 4
 
     return dataProcessing.data_reading(N, nfix, t, inputlist)
 
@@ -173,8 +158,6 @@ def firecom_pre():
     N, t, axes = model.get_model()
     para = [axes[n]['name'] for n in range(N)]
 
-    nfix = 4
-
     return dataProcessing.combination_data(N, nfix, para)
 
 
@@ -188,8 +171,6 @@ def firesen_pre():
     model = __import__(modelname)
     N, t, axes = model.get_model()
     para = [axes[n]['name'] for n in range(N)]
-
-    nfix = 4
 
     return dataProcessing.data_prereading(N, nfix, t)
 
@@ -208,8 +189,6 @@ def firecom_data():
     N, t, axes = model.get_model()
     para = [axes[n]['name'] for n in range(N)]
 
-    nfix = 4
-
     return dataProcessing.combination_data(N, nfix, para, inputlist)
 
 
@@ -225,8 +204,6 @@ def firesen_data():
 
     model = __import__(modelname)
     N, t, axes = model.get_model()
-
-    nfix = 4
 
     return dataProcessing.data_reading(N, nfix, t, inputlist)
 
