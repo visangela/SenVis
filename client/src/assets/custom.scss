@@ -1,0 +1,18 @@
+//<style lang="scss">
+    // Import custom SASS variable overrides, or alternatively
+    // define your variable overrides here instead
+
+
+//@import "../../node_modules/bootstrap/scss/variables";
+/*-------------------------------------------------------------------*/
+/* Change whatever custom styles here */
+$font-size-base: 1.1rem;
+
+/*-------------------------------------------------------------------*/
+/* === Boostrap Main SCSS === */
+// Import Bootstrap and BootstrapVue source SCSS files
+@import "../../node_modules/bootstrap/scss/bootstrap";
+@import '../../node_modules/bootstrap-vue/src/index.scss';
+
+
+//</style >
