@@ -74,19 +74,11 @@ def get_model(): # keep the name of function unchanged
                                                 :key="variableName.index"
                                                 :value="variableName.id">
                                     <b>[{{variableName.index}}]</b> &nbsp;&nbsp; {{variableName.name}}
-                                <!--<b>[{{variableName.index}}]</b> &nbsp;&nbsp; {{ variableName.name }}-->
                                 </b-form-checkbox>
                             </b-form-group>
                         </b-dropdown>
                     </div>
                     <hr/>
-                    <!-- <div class="step3">
-                        <p><em> &#8594; Switch between the two analytical views:</em></p>
-                        <b-form-group>
-                            <b-form-radio v-model="selectedView" plain name="some-radios" size="sm" value="A">Relation View</b-form-radio>
-                            <b-form-radio v-model="selectedView" plain name="some-radios" size="sm" value="B">Relative View</b-form-radio>
-                        </b-form-group>
-                    </div> -->
                     <div class="mb-2">
                         <img class="image-name" src="../images/sobol.png" alt="sobol">
                         <img src="../images/s12.png" alt="s12">
