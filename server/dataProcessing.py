@@ -88,20 +88,16 @@ def data_prereading(N, nfix, t, listvariable=None):
         for j in range(len_setnow):
             # split setnow and get every single element in setnow, then apply the logic
             vindex = setnow[j]
-            dc_p = dc.index(list(map(lambda x: x - 1, list(vindex))))
-            union_set = tn.any(N, which=list(map(lambda x: x - 1, list(vindex))))
-            inter_set = tn.all(N, which=list(map(lambda x: x - 1, list(vindex))))
+            vv = list(map(lambda x: x - 1, list(vindex)))
+            dc_p = dc.index(vv)
+            sobol_p = ind.variance_component(vv)
+            sobol_c = ind.closed_index(vv)
+            sobol_t = ind.total_index(vv)
+            sobol_s = ind.superset_index(vv)
 
-            sobol_p = tn.sobol(t, mask=tn.only(inter_set)).tolist()
             sobol_p = round(sobol_p, digit)
-
-            sobol_c = tn.sobol(t, mask=tn.only(union_set)).tolist()
             sobol_c = round(sobol_c, digit)
-
-            sobol_t = tn.sobol(t, union_set).tolist()
             sobol_t = round(sobol_t, digit)
-
-            sobol_s = tn.sobol(t, inter_set).tolist()
             sobol_s = round(sobol_s, digit)
 
             # sobols[i] = [sobol_p, sobol_c, sobol_t, sobol_s]
@@ -156,20 +152,16 @@ def data_reading(N, nfix, t, listvariable=None):
         for j in range(len_setnow):
             # split setnow and get every single element in setnow, then apply the logic
             vindex = setnow[j]
-            dc_p = dc.index(list(map(lambda x: x - 1, list(vindex))))
-            union_set = tn.any(N, which=list(map(lambda x: x - 1, list(vindex))))
-            inter_set = tn.all(N, which=list(map(lambda x: x - 1, list(vindex))))
+            vv = list(map(lambda x: x - 1, list(vindex)))
+            dc_p = dc.index(vv)
+            sobol_p = ind.variance_component(vv)
+            sobol_c = ind.closed_index(vv)
+            sobol_t = ind.total_index(vv)
+            sobol_s = ind.superset_index(vv)
 
-            sobol_p = tn.sobol(t, mask=tn.only(inter_set)).tolist()
             sobol_p = round(sobol_p, digit)
-
-            sobol_c = tn.sobol(t, mask=tn.only(union_set)).tolist()
             sobol_c = round(sobol_c, digit)
-
-            sobol_t = tn.sobol(t, union_set).tolist()
             sobol_t = round(sobol_t, digit)
-
-            sobol_s = tn.sobol(t, inter_set).tolist()
             sobol_s = round(sobol_s, digit)
 
             # sobols[i] = [sobol_p, sobol_c, sobol_t, sobol_s]
