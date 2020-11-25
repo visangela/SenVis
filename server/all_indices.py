@@ -39,59 +39,59 @@ class AllIndices():
         # Precompute all directional covariances #
         ##########################################
 
-        # Center the model (make it have mean 0)
-        t = t.clone() - tn.mean(t)
+        # # Center the model (make it have mean 0)
+        # t = t.clone() - tn.mean(t)
 
-        # Compute the directional function: x1 + ... + xk for
-        # every subset of variables
-        cores = []
-        for n in range(N):
-            I = t.shape[n]
-            c = torch.eye(2)[:, None, :].repeat(1, 2 * I, 1)
-            c[1, I:, 0] = torch.linspace(0, 1, I)
-            cores.append(c)
-        cores[0] = cores[0][1:2, ...]
-        cores[N - 1] = cores[N - 1][..., 0:1]
-        vecs = tn.Tensor(cores)
+        # # Compute the directional function: x1 + ... + xk for
+        # # every subset of variables
+        # cores = []
+        # for n in range(N):
+        #     I = t.shape[n]
+        #     c = torch.eye(2)[:, None, :].repeat(1, 2 * I, 1)
+        #     c[1, I:, 0] = torch.linspace(0, 1, I)
+        #     cores.append(c)
+        # cores[0] = cores[0][1:2, ...]
+        # cores[N - 1] = cores[N - 1][..., 0:1]
+        # vecs = tn.Tensor(cores)
 
-        # Center all directional functions (make them have mean 0)
-        cores = []
-        for n in range(N):
-            I = t.shape[n]
-            c1 = torch.mean(vecs.cores[n][:, :I, :], dim=1, keepdim=True).repeat(1, I, 1)
-            c2 = torch.mean(vecs.cores[n][:, I:, :], dim=1, keepdim=True).repeat(1, I, 1)
-            cores.append(torch.cat([c1, c2], dim=1))
-        vecs_means = tn.Tensor(cores)
-        vecs -= vecs_means
+        # # Center all directional functions (make them have mean 0)
+        # cores = []
+        # for n in range(N):
+        #     I = t.shape[n]
+        #     c1 = torch.mean(vecs.cores[n][:, :I, :], dim=1, keepdim=True).repeat(1, I, 1)
+        #     c2 = torch.mean(vecs.cores[n][:, I:, :], dim=1, keepdim=True).repeat(1, I, 1)
+        #     cores.append(torch.cat([c1, c2], dim=1))
+        # vecs_means = tn.Tensor(cores)
+        # vecs -= vecs_means
 
-        # Compute the variance of all directional functions
-        vecs_sq = vecs * vecs
-        cores = []
-        for n in range(N):
-            I = t.shape[n]
-            c1 = torch.mean(vecs_sq.cores[n][:, :I, :], dim=1, keepdim=True)
-            c2 = torch.mean(vecs_sq.cores[n][:, I:, :], dim=1, keepdim=True)
-            cores.append(torch.cat([c1, c2], dim=1))
-        vecs_variance = tn.Tensor(cores)
-        vecs_variance += tn.none(N)  # To avoid division by 0
+        # # Compute the variance of all directional functions
+        # vecs_sq = vecs * vecs
+        # cores = []
+        # for n in range(N):
+        #     I = t.shape[n]
+        #     c1 = torch.mean(vecs_sq.cores[n][:, :I, :], dim=1, keepdim=True)
+        #     c2 = torch.mean(vecs_sq.cores[n][:, I:, :], dim=1, keepdim=True)
+        #     cores.append(torch.cat([c1, c2], dim=1))
+        # vecs_variance = tn.Tensor(cores)
+        # vecs_variance += tn.none(N)  # To avoid division by 0
 
-        # Compute covariances between the model and all directional functions
-        trep = tn.Tensor([c.repeat(1, 2, 1) for c in t.cores])
-        covs = tn.cross(tensors=[trep, vecs], function=lambda x, y: x * y, verbose=verbose)
-        for n in range(N):
-            I = t.shape[n]
-            c1 = torch.mean(covs.cores[n][:, :I, :], dim=1, keepdim=True)
-            c2 = torch.mean(covs.cores[n][:, I:, :], dim=1, keepdim=True)
-            covs.cores[n] = torch.cat([c1, c2], dim=1)
+        # # Compute covariances between the model and all directional functions
+        # trep = tn.Tensor([c.repeat(1, 2, 1) for c in t.cores])
+        # covs = tn.cross(tensors=[trep, vecs], function=lambda x, y: x * y, verbose=verbose)
+        # for n in range(N):
+        #     I = t.shape[n]
+        #     c1 = torch.mean(covs.cores[n][:, :I, :], dim=1, keepdim=True)
+        #     c2 = torch.mean(covs.cores[n][:, I:, :], dim=1, keepdim=True)
+        #     covs.cores[n] = torch.cat([c1, c2], dim=1)
 
-        # Tensor containing all 2^N desired indices
-        dircov = tn.cross(tensors=[covs, vecs_variance], function=lambda x, y: x / torch.sqrt(y), verbose=verbose)
+        # # Tensor containing all 2^N desired indices
+        # dircov = tn.cross(tensors=[covs, vecs_variance], function=lambda x, y: x / torch.sqrt(y), verbose=verbose)
 
-        # Normalize result so that the largest index in absolute value is 1.
-        # That should be useful for color coding
-        dircov /= max(torch.abs(tn.minimum(dircov)), torch.abs(tn.maximum(dircov)))
+        # # Normalize result so that the largest index in absolute value is 1.
+        # # That should be useful for color coding
+        # dircov /= max(torch.abs(tn.minimum(dircov)), torch.abs(tn.maximum(dircov)))
 
-        self.dircov = dircov
+        # self.dircov = dircov
 
     def _get_index(self, variables, tensor):
         
@@ -115,8 +115,8 @@ class AllIndices():
     def total_index(self, variables):
         return self._get_index(variables, self.tst)
 
-    def directional_covariance(self, variables):
-        return self._get_index(variables, self.dircov)
+    # def directional_covariance(self, variables):
+    #     return self._get_index(variables, self.dircov)
 
 
 if __name__ == '__main__':  # For example and testing purposes
