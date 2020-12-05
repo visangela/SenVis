@@ -917,7 +917,7 @@ def get_welch_1992():
         return Xs[:, 11] / (1 + Xs[:, 0]) + 5*(Xs[:, 3] - Xs[:, 19])**2 + Xs[:, 4] + 40*Xs[:, 18]**3 - 5*Xs[:, 18] + 0.05*Xs[:, 1] + 0.08*Xs[:, 4] - 0.03*Xs[:, 5] + 0.03*Xs[:, 6] - 0.09*Xs[:, 8] - 0.01*Xs[:, 9] - 0.07*Xs[:, 10] + 0.25*Xs[:, 12]**2 - 0.04*Xs[:, 13] + 0.06*Xs[:, 14] - 0.01*Xs[:, 16] - 0.03*Xs[:, 17]
 
     dict(name='Sw', domain=(150, 200)),
-    axes = [dict(name='x_' + str(n+1), domain=(-0.5, 0.5)) for n in range(20)]
+    axes = [dict(name='x_{' + str(n+1) + '}: ', domain=(-0.5, 0.5)) for n in range(20)]
 
     return function, axes
 
@@ -1290,19 +1290,19 @@ def get_ebola_spread(country='Liberia'):
                 dict(name='\\beta_2: Transmission rate between removed but still infectious and susceptible', domain=(0.1, 0.4)),
                 dict(name='\\beta_3: Transmission rate between hospitalized and susceptible', domain=(0.05, 0.2)),
                 dict(name='\\rho_1: Proportion of infected who die of the disease and are not hospitalized', domain=(0.41, 1)),
-                dict(name='\\gamma_1: (Average time with disease for unhospitalized individuals)', domain=(0.0276, 0.1702)),
-                dict(name='\\gamma_2: (Average time with disease for hospitalized individuals)', domain=(0.081, 0.21)),
-                dict(name='\\omega: (Average time until a deceased individual is properly buried)', domain=(0.25, 0.5)),
-                dict(name='\\psi: (Average time for infected to become hospitalized)', domain=(0.0833, 0.7))]
+                dict(name='\\gamma_1: Average time with disease for unhospitalized individuals', domain=(0.0276, 0.1702)),
+                dict(name='\\gamma_2: Average time with disease for hospitalized individuals', domain=(0.081, 0.21)),
+                dict(name='\\omega: Average time until a deceased individual is properly buried', domain=(0.25, 0.5)),
+                dict(name='\\psi: Average time for infected to become hospitalized', domain=(0.0833, 0.7))]
     else:
         axes = [dict(name='\\beta_1: Transmission rate between infected and susceptible', domain=(0.1, 0.4)),
                 dict(name='\\beta_2: Transmission rate between removed but still infectious and susceptible', domain=(0.1, 0.4)),
                 dict(name='\\beta_3: Transmission rate between hospitalized and susceptible', domain=(0.05, 0.2)),
                 dict(name='\\rho_1: Proportion of infected who die of the disease and are not hospitalized', domain=(0.41, 1)),
-                dict(name='\\gamma_1: (Average time with disease for unhospitalized individuals)', domain=(0.0275, 0.1569)),
-                dict(name='\\gamma_2: (Average time with disease for hospitalized individuals)', domain=(0.1236, 0.384)),
-                dict(name='\\omega: (Average time until a deceased individual is properly buried)', domain=(0.25, 0.5)),
-                dict(name='\\psi: (Average time for infected to become hospitalized)', domain=(0.0833, 0.7))]
+                dict(name='\\gamma_1: Average time with disease for unhospitalized individuals', domain=(0.0275, 0.1569)),
+                dict(name='\\gamma_2: Average time with disease for hospitalized individuals', domain=(0.1236, 0.384)),
+                dict(name='\\omega: Average time until a deceased individual is properly buried', domain=(0.25, 0.5)),
+                dict(name='\\psi: Average time for infected to become hospitalized', domain=(0.0833, 0.7))]
 
     return function, axes
 
@@ -1453,7 +1453,7 @@ def get_wind_turbine_wake():
     axes = [dict(name='C_T: thrust coefficient of the turbine', domain=(0.4, 0.8)),
             dict(name='k_{wake}: wake spreading parameter', domain=(0.1, 0.2)),
             dict(name='d_0: wind turbine diameter', domain=(1, 80)),
-            dict(name='x:  distance behind the turbine', domain=(1, 200))]
+            dict(name='x: distance behind the turbine', domain=(1, 200))]
 
     return function, axes
 

@@ -6,13 +6,14 @@
                 <b-col cols="1" class="home-col-left">
                     <div id="title">
                         <h4><b>&lceil;  SenVis  &rfloor;</b></h4>
+                        <!-- <vue-mathjax :formula="formula"></vue-mathjax> -->
                         <hr/>
                     </div>
                     <div class="step11">
-                        <p class="step"><em> &#10122; Choose a model or upload your own model: </em></p>
+                        <p class="step"><em>&#10122; Choose a model: </em></p>
                         <b-dropdown id="dropdown-left" variant="info" size="sm" text="S" class="m-2">
                             <template v-slot:button-content>
-                                Predefined Model
+                                <b>Choose Model</b>
                             </template>
                             <b-form-group class="form-group">
                                 <b-form-radio v-model="selectedModel" :value="currentCase[0]">wind turbine wake - [4 variables]</b-form-radio>
@@ -24,17 +25,18 @@
                             </b-form-group>
                         </b-dropdown>
                         <b-button size="sm" variant="outline-info" class="my-1 mr-sm-2" type="submit" @click="visualizeModel()">
-                            <em>Visualize Predefined Model</em>
+                            <em>&#10124; <b>Visualize Predefined Model</b></em>
                         </b-button>
                     </div>
                     <div class="step12">
+                        <p class="step"><em>&#10122; Upload a model: </em></p>
                         <b-form-file class="mr-sm-2" ref="file" type="file" v-model="files"
                                      @change="handleFileUpload"
                                      placeholder="Upload ..." size="sm"></b-form-file>
 
                         
                         <b-button size="sm" variant="outline-light" class="my-1 mr-sm-2" type="submit" @click="visualizeUploadModel()">
-                            <em>Visualize Uploaded Model</em>
+                            <em>&#10124; <b>Visualize Uploaded Model</b></em>
                         </b-button>
                         <b-button class="button1" variant="dark" v-b-modal.modal-1>See an example</b-button>
                         <b-modal size="lg" id="modal-1" title="A four variable function example:">
@@ -63,40 +65,55 @@ def get_model(): # keep the name of function unchanged
                     </div>
                     <hr/>
                     <div class="step2">
-                        <p class="step"><em> &#10123; Select variables of interest for analysis: </em></p>
+                        <p class="step"><em> &#10123; Select variables for analysis: </em></p>
                         <b-dropdown id="dropdown-1" variant="warning" size="sm" text="S" class="m-2">
                             <template v-slot:button-content>
-                                Select Variables
+                                <b>Select Variables</b>
                             </template>
                             <b-form-group>
                                 <b-form-checkbox v-model="selected"
                                                 v-for="variableName in variableNames"
                                                 :key="variableName.index"
                                                 :value="variableName.id">
-                                    <b>[{{variableName.index}}]</b> &nbsp;&nbsp; {{variableName.name}}
+                                    <!-- <b>[{{variableName.index}}]</b> &nbsp;&nbsp; {{variableName.name}} -->
+                                    <vue-mathjax :formula="variableName.index"></vue-mathjax><vue-mathjax :formula="variableName.name"></vue-mathjax>
                                 </b-form-checkbox>
                             </b-form-group>
                         </b-dropdown>
                     </div>
-                    <hr/>
+                    <!-- <hr/> -->
                     <div class="mb-2">
-                        <img class="image-name" src="../images/sobol.png" alt="sobol">
+                        <!-- <vue-mathjax :formula="formula"></vue-mathjax> -->
+
+                        <!-- <b-table small bordered sticky-header hover :items="variable_value"> -->
+                        <!-- </b-table> -->
+
+                        
+                        <div v-for="item in variable_value" :key="item.label">
+                            <vue-mathjax :formula="item.label" class="special"></vue-mathjax><span class="special">:</span><vue-mathjax :formula="item.name" class="special"></vue-mathjax>
+                            <!-- {{ item.label }}: {{ item.name }} -->
+                        </div>
+                            
+                           
+
+
+                        <!-- <img class="image-name" src="../images/sobol.png" alt="sobol">
                         <img src="../images/s12.png" alt="s12">
                         <br>
                         <img class="image-name" src="../images/closed.png" alt="closed">
-                        <img src="../images/sc12.png" alt="s12">
+                        <img src="../images/sc12.png" alt="sc12">
                         <br>
                         <img class="image-name" src="../images/super.png" alt="super">
-                        <img src="../images/ss12.png" alt="s12">
+                        <img src="../images/ss12.png" alt="ss12">
                         <br>
                         <img class="image-name" src="../images/total.png" alt="total">
-                        <img src="../images/st12.png" alt="s12">   
+                        <img src="../images/st12.png" alt="st12">    -->
                     </div>
                     
                 </b-col>
                 <b-col cols="3" class="home-col-middle">
                     <InfoView v-if="isLoaded" :variableList="variableListIni" :fields="fields" :items="itemsIni"/>
-                    <ScatterView v-if="isLoadedVis" :variableList="variableList" :relativeList="relativeList" :items="items" :N="N" :input="inputVariables"/>
+                    <ScatterView v-if="isLoadedVis" :variableList="variableList" :variableValue="variable_value" :relativeList="relativeList" :items="items" :N="N" :input="inputVariables"/>
                 </b-col>
                 <b-col cols="8" class="home-col-right">
                     <RelationView v-if="isLoadedVis" :variableList="variableList" :items="items" :input="inputVariables"/>
@@ -118,17 +135,20 @@ def get_model(): # keep the name of function unchanged
     import RelationView from './RelationView'
     import ScatterView from './ScatterView'
     import axios from 'axios'
+    import { VueMathjax } from "vue-mathjax"
 
 
     export default {
         name: 'Home',
         components: {
+            "vue-mathjax": VueMathjax,
             InfoView,
             RelationView,
             ScatterView
         },
         data () {
             return {
+                // formula: "$$x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}.$$",
                 currentCase: ['wind_turbine_wake', 'otl_circuit', 'piston', 'ebola_spread', 'wing_weight', 'welch_1992'],
                 thiscase:[],
                 selected: [],
@@ -144,6 +164,7 @@ def get_model(): # keep the name of function unchanged
                 itemsIni: [],
                 variableListIni: [],
                 items: [],
+                variable_value: [],
                 variableList: [],
                 relativeList: [],
                 fields: [
@@ -173,10 +194,14 @@ def get_model(): # keep the name of function unchanged
         },
         watch: {
             selected: function (newData) {
+                console.log(this.variable_value)
+                // this.variable_value = this.variable_value[newData]
+                // console.log(this.variable_value)
                 this.inputVariables = newData.map(x => x+1);
                 this.inputVariables.sort(function (a, b) {
                     return a - b;
                 });
+                
             },
             selectedModel: function (newData) {
                 if (newData.length !== 0) this.selectModel(newData)
@@ -271,18 +296,28 @@ def get_model(): # keep the name of function unchanged
                     .then((res) => {
                         let listCom = res['sets']; // res.data['sets'] when removing the above .then line
                         let name = res['name'];
-
+                        console.log(name)
                         that.variableNames = [];
+                        that.variable_value = [];
                         let tem_name = {};
+                        let tem_name2 = {};
+                        const re = /^([^:]*)/;
+                        const re2 = /.+:(.+)/;
                         for (let i = 0; i < name.length; i++ ) {
-                            let vvid = "v_" + (i+1).toString()
+                            let vvid = "v_{" + (i+1).toString() + "}"
                             tem_name = {
                                 "id": i,
-                                "index": vvid,
-                                "name": name[i] // "[" + " " + vvid + " " + "] " + " " + name[i],
+                                "index": "$$" + vvid.toString() + ":" + name[i].match(re)[0].toString() + "$$",//vvid,
+                                "name": name[i].match(re2)[1]//name[i] // "[" + " " + vvid + " " + "] " + " " + name[i],
                             }
-                            that.variableNames[i] = tem_name
+                            tem_name2 = {
+                                "label": "$$" + vvid.toString() + "$$",
+                                "name": "$$" + name[i].match(re)[0].toString() + "$$"
+                            }
+                            that.variableNames[i] = tem_name;
+                            that.variable_value[i] = tem_name2;
                         }
+                        console.log(that.variable_value)
                         let nn = res['order'];
                         let vlist = [];
                         for (let i = 0; i < nn ; i++) {
@@ -347,17 +382,37 @@ def get_model(): # keep the name of function unchanged
                         let listCom = res['sets']; // res.data['sets'] when removing the above .then line
                         let name = res['name'];
 
+                        // that.variableNames = [];
+                        // let tem_name = {};
+                        // for (let i = 0; i < name.length; i++ ) {
+                        //     let vvid = "v_" + (i+1).toString()
+                        //     tem_name = {
+                        //         "id": i,
+                        //         "index": vvid,
+                        //         "name": name[i]//"[" + " " + vvid + " " + "] " + " " + name[i],
+                        //     }
+
+                        //     that.variableNames[i] = tem_name
+                        // }
                         that.variableNames = [];
+                        that.variable_value = [];
                         let tem_name = {};
+                        let tem_name2 = {};
+                        const re = /^([^:]*)/;
+                        const re2 = /.+:(.+)/;
                         for (let i = 0; i < name.length; i++ ) {
-                            let vvid = "v_" + (i+1).toString()
+                            let vvid = "v_{" + (i+1).toString() + "}"
                             tem_name = {
                                 "id": i,
-                                "index": vvid,
-                                "name": name[i]//"[" + " " + vvid + " " + "] " + " " + name[i],
+                                "index": "$$" + vvid.toString() + ":" + name[i].match(re)[0].toString() + "$$",//vvid,
+                                "name": name[i].match(re2)[1]//name[i] // "[" + " " + vvid + " " + "] " + " " + name[i],
                             }
-
-                            that.variableNames[i] = tem_name
+                            tem_name2 = {
+                                "label": "$$" + vvid.toString() + "$$",
+                                "name": "$$" + name[i].match(re)[0].toString() + "$$"
+                            }
+                            that.variableNames[i] = tem_name;
+                            that.variable_value[i] = tem_name2;
                         }
                         let nn = res['order'];
                         // console.log(listCom);
@@ -428,16 +483,36 @@ def get_model(): # keep the name of function unchanged
                         let listCom = res['sets']; // res.dat
                         let name = res['name'];
 
+                        // that.variableNames = [];
+                        // let tem_name = {};
+                        // for (let i = 0; i < name.length; i++ ) {
+                        //     let vvid = "v_" + (i+1).toString();
+                        //     tem_name = {
+                        //         "id": i,
+                        //         "index": vvid,
+                        //         "name": name[i]// "[" + " " + vvid + " " + "] " + " " + name[i],
+                        //     }
+                        //     that.variableNames[i] = tem_name
+                        // }
                         that.variableNames = [];
+                        that.variable_value = [];
                         let tem_name = {};
+                        let tem_name2 = {};
+                        const re = /^([^:]*)/;
+                        const re2 = /.+:(.+)/;
                         for (let i = 0; i < name.length; i++ ) {
-                            let vvid = "v_" + (i+1).toString();
+                            let vvid = "v_{" + (i+1).toString() + "}"
                             tem_name = {
                                 "id": i,
-                                "index": vvid,
-                                "name": name[i]// "[" + " " + vvid + " " + "] " + " " + name[i],
+                                "index": "$$" + vvid.toString() + ":" + name[i].match(re)[0].toString() + "$$",//vvid,
+                                "name": name[i].match(re2)[1]//name[i] // "[" + " " + vvid + " " + "] " + " " + name[i],
                             }
-                            that.variableNames[i] = tem_name
+                            tem_name2 = {
+                                "label": "$$" + vvid.toString() + "$$",
+                                "name": "$$" + name[i].match(re)[0].toString() + "$$"
+                            }
+                            that.variableNames[i] = tem_name;
+                            that.variable_value[i] = tem_name2;
                         }
                         let nn = res['order'];
                         let vlist = [];
@@ -508,16 +583,36 @@ def get_model(): # keep the name of function unchanged
                         let listCom = res['sets']; // res.data['sets'] when removing the above .then line
                         let name = res['name'];
 
+                        // that.variableNames = [];
+                        // let tem_name = {};
+                        // for (let i = 0; i < name.length; i++ ) {
+                        //     let vvid = "v_" + (i+1).toString()
+                        //     tem_name = {
+                        //         "id": i,
+                        //         "index": vvid,
+                        //         "name": name[i]//"[" + " " + vvid + " " + "] " + " " + name[i],
+                        //     }
+                        //     that.variableNames[i] = tem_name
+                        // }
                         that.variableNames = [];
+                        that.variable_value = [];
                         let tem_name = {};
+                        let tem_name2 = {};
+                        const re = /^([^:]*)/;
+                        const re2 = /.+:(.+)/;
                         for (let i = 0; i < name.length; i++ ) {
-                            let vvid = "v_" + (i+1).toString()
+                            let vvid = "v_{" + (i+1).toString() + "}"
                             tem_name = {
                                 "id": i,
-                                "index": vvid,
-                                "name": name[i]//"[" + " " + vvid + " " + "] " + " " + name[i],
+                                "index": "$$" + vvid.toString() + ":" + name[i].match(re)[0].toString() + "$$",//vvid,
+                                "name": name[i].match(re2)[1]//name[i] // "[" + " " + vvid + " " + "] " + " " + name[i],
                             }
-                            that.variableNames[i] = tem_name
+                            tem_name2 = {
+                                "label": "$$" + vvid.toString() + "$$",
+                                "name": "$$" + name[i].match(re)[0].toString() + "$$"
+                            }
+                            that.variableNames[i] = tem_name;
+                            that.variable_value[i] = tem_name2;
                         }
                         let nn = res['order'];
                         let vlist = [];
@@ -592,7 +687,7 @@ def get_model(): # keep the name of function unchanged
 
 <style>
     body {
-        font-size: 18px;
+        font-size: 20px;
     }
 </style>
 
@@ -628,12 +723,19 @@ def get_model(): # keep the name of function unchanged
 
     .step12 {
         margin-top: 20px;
-        margin-bottom: 40px;
+        margin-bottom: 20px;
     }
 
     .step2 {
         margin-top: 10px;
-        margin-bottom: 50px;
+        margin-bottom: 20px;
+    }
+
+    .mb-2 {
+        // background-color: white;
+        margin-left: 0px;
+        text-align: left; 
+        min-height: 330px !important;
     }
 
     .navbar-brand {
@@ -678,13 +780,14 @@ def get_model(): # keep the name of function unchanged
     }
 
     .dropdown {
-        width: 90%; 
+        width: 91%; 
     }
 
+    
 
     .btn-sm, .btn-group-sm > .btn {
         /*padding-top: 0px;*/
-        font-size: 18px !important;
+        font-size: 20px !important;
         margin-left: 8px;
         text-align: center;
     }
@@ -726,11 +829,24 @@ def get_model(): # keep the name of function unchanged
     }
 
     .button1 {
-        margin-left: 12px;
+        margin-left: 6px;
         margin-top: 0px;
         margin-bottom: 0px;
         text-align: center;
     }
+
+    span {
+        display: inline-block;
+    }
+
+    .special {
+        display: inline-block;
+        padding-left: 30px;
+        font-size: 110%;
+        color: white;
+        
+    }
+
 
 
 </style>

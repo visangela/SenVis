@@ -10,6 +10,10 @@
                                      :items="indices[0]"
                                      :fields="fields">
                                 <!-- A custom formatted header cell for field 'name' -->
+                                <template v-slot:head(var)="data">
+                                    <!-- <vue-mathjax :formula="items.var" ></vue-mathjax> -->
+                                    <span class="text-dark">{{ data.label }}</span>
+                                </template>
                                 <template v-slot:head(sobol_indices)="data">
                                     <span class="text-danger">{{ data.label }}</span>
                                 </template>
@@ -25,6 +29,12 @@
 
                             </b-table>
                         </b-card-text>
+                         <b-card-footer>
+                            <div>
+                                <b-button class="success"><span>&#8593;</span></b-button>
+                                <b-button class="danger" ><span>&#8595;</span></b-button>
+                            </div>
+                        </b-card-footer>
                     </b-tab>
 
                     <!-- Render other Tabs, supply a unique `key` to each tab -->
@@ -34,6 +44,7 @@
                                      :items="indices[i+1]"
                                      :fields="fields">
                                 <!-- A custom formatted header cell for field 'name' -->
+                                
                                 <template v-slot:head(sobol_indices)="data">
                                     <span class="text-danger">{{ data.label }}</span>
                                 </template>
@@ -51,7 +62,9 @@
                         </b-card-text>
                         <b-card-footer :i="i">
                             <div>
-                                <b-button v-show="tabCounter === i+1" size="sm" variant="danger" class="float-right" @click="closeTab(i)">
+                                <b-button class="success"><span>&#8593;</span></b-button>
+                                <b-button class="danger" ><span>&#8595;</span></b-button>
+                                <b-button v-show="tabCounter === i+1"  variant="danger" class="float-right" @click="closeTab(i)">
                                     Close
                                 </b-button>
                             </div>
@@ -73,8 +86,13 @@
 </template>
 
 <script>
+    // import {VueMathjax} from "vue-mathjax"
+
     export default {
         name: 'InfoView',
+        // components: {
+        //     "vue-mathjax": VueMathjax,
+        // },
         props: {
             fields: Array,
             items: Array,
@@ -182,10 +200,10 @@
 
     }
 
-    h6 {
+    /* h6 {
         margin-bottom: 0px;
         font-size: 20px;
-    }
+    } */
 
     hr {
         margin-top: 0px;
@@ -198,19 +216,37 @@
         padding-bottom: 10px;
         padding-left: 0px;
         padding-right: 5px;
-        min-height: 460px !important;
+        min-height: 500px !important;
     }
 
     .text-purple {
         color: #a157a6  /*984ea3*/
     }
 
-    .text-closed {
-        color: #f4a90e
+    .success {
+        background-color: #c4e6cb;
+        color: #000000;
+        border-color: #c4e6cb;
+    }
+
+    .danger {
+        background-color: #f5c6cb;
+        color: #000000;
+        border-color: #f5c6cb;
+    }
+
+    span {
+        font-size:20px;
+        transform: scale(1, 1);
+    }
+
+    .card-footer {
+        padding-left: 0px;
+        padding-bottom: 0px;
     }
 
     p {
-        font-size: 18px;
+        font-size: 20px;
     }
 
 </style>

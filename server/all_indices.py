@@ -5,7 +5,7 @@ import numpy as np
 
 class AllIndices():
 
-    def __init__(self, t, eps=1e-6, verbose=False):
+    def __init__(self, t, eps=1e-9, verbose=False):
 
         # if isinstance(t, tt.core.vector.vector):
         #     t = tn.Tensor([torch.Tensor(c) for c in tt.vector.to_list(t)])

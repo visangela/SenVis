@@ -1,36 +1,68 @@
+# from flask import jsonify
 import json
+
 import tntorch as tn
 import torch
+from torch import linspace
 import itertools
 import time
 import numpy as np
 
 models = __import__('models')
 dircov = __import__('dircov')
+al = __import__('all_indices')
 
 digit = 4
+# t = tn.rand([32] * N, ranks_tt=10)
 
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #                    handle post request and generate order and tensor
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 def functional(case):
+    start1 = time.time()
     calling = getattr(models, "get_" + case)
     function_local, axes = calling()
+    print('computing function took only {:g}s'.format(time.time() - start1))
     return function_local, axes
 
+
 def data_processing(function_local, axes):
+    # # load the model and parameter space
+    # model = tr.core.load('./models/' + case + '.npz')
+    # cores = tt.vector.to_list(model)
+    # cores = [torch.Tensor(i) for i in cores]
+    # t = tn.Tensor(cores)
+    #
+    # with open('./models/' + case + '.json') as f:
+    #     data = json.load(f)  # or json.loads(f.read())
+    #     N = len(data)  # N = dimensions
+    #     para = []  # parameter name
+    #     for i in range(len(data)):
+    #         temp = data[i]['name']
+    #         para.append(temp)
+
+    # ======= depend only on tntorch ======== %
+    start2 = time.time()
     N = len(axes)
 
     domains = [axes[n]['domain'] for n in range(N)]
     tick_num = 64
     domain = []
     for n in range(N):
-        domain.append(torch.linspace(domains[n][0], domains[n][1], tick_num))
+        domain.append(linspace(domains[n][0], domains[n][1], tick_num))
 
     t = tn.cross(function=function_local, domain=domain, function_arg='matrix', max_iter=10)
 
+    P = 10000
+    x_indices = torch.cat([torch.randint(0, t.shape[n], [P, 1]) for n in range(t.dim())], dim=1)
+    x = torch.cat([domain[n][x_indices[:, n:n + 1]] for n in range(t.dim())], dim=1)
+    print('RMSE:', torch.sqrt(torch.mean((function_local(x) - t[x_indices].torch())**2)))
+
+
     para = [axes[n]['name'] for n in range(N)]
+    print('computing sobol tensor took only {:g}s'.format(time.time() - start2))
+    print(max(t.ranks_tt))
 
     return N, t, para
 
@@ -56,12 +88,15 @@ def combination_data(N, nfix, para, listvariable=None):
 
     setAll = {'order': n, "name": para, "sets": sett}
 
+    # with open('./data/order3.json', 'w', encoding='utf-8') as f:
+    #     json.dump(setAll, f, ensure_ascii=False, indent=2)
     return json.dumps(setAll)
 
 
 def data_prereading(N, nfix, t, listvariable=None):
-    start = time.time()
+    start3 = time.time()
     dc = dircov.DirectionalCovariance(t)  # positive or negative of the sobol indices
+    ind = al.AllIndices(t)
 
     n = nfix if nfix < N else N
     if listvariable is None:
@@ -87,9 +122,18 @@ def data_prereading(N, nfix, t, listvariable=None):
 
         for j in range(len_setnow):
             # split setnow and get every single element in setnow, then apply the logic
+            # variables_index = setnow[j] like (1,2,3)
             vindex = setnow[j]
             vv = list(map(lambda x: x - 1, list(vindex)))
             dc_p = dc.index(vv)
+            # union_set = tn.any(N, which=list(map(lambda x: x - 1, list(vindex))))  # map function(function, input)
+            # inter_set = tn.all(N, which=list(map(lambda x: x - 1, list(vindex))))
+
+            # sobol_p = tn.sobol(t, mask=tn.only(inter_set)).tolist()
+            # sobol_c = tn.sobol(t, mask=tn.only(union_set)).tolist()
+            # sobol_t = tn.sobol(t, union_set).tolist()
+            # sobol_s = tn.sobol(t, inter_set).tolist()
+            
             sobol_p = ind.variance_component(vv)
             sobol_c = ind.closed_index(vv)
             sobol_t = ind.total_index(vv)
@@ -112,7 +156,7 @@ def data_prereading(N, nfix, t, listvariable=None):
     sobolAll.append(sobolsetInOrder)
 
     sobolJson = {'order': N, 'od': n, 'chosenorder': inputorder, 'nodes': sobolAll}
-    print('computing this index took only {:g}s'.format(time.time() - start))
+    print('computing prereading index took only {:g}s'.format(time.time() - start3))
     return json.dumps(sobolJson)
 
 
@@ -120,8 +164,9 @@ def data_prereading(N, nfix, t, listvariable=None):
 # ============ generate all the four sobol indices values =============
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 def data_reading(N, nfix, t, listvariable=None):
-    start = time.time()
+    start4 = time.time()
     dc = dircov.DirectionalCovariance(t)
+    ind = al.AllIndices(t)
 
     n = nfix if nfix < N else N
     if listvariable is None:
@@ -139,7 +184,7 @@ def data_reading(N, nfix, t, listvariable=None):
         sobolsetInOrder[setOrder] = {}
         relativeInOrder[setOrder] = {}
         setnow = list(itertools.combinations(listvariable, setOrder))
-        len_setnow = len(setnow)
+        len_setnow = len(setnow)  # like C(2,5) = 10
 
         sobolset = {
             'dc': [],
@@ -151,9 +196,18 @@ def data_reading(N, nfix, t, listvariable=None):
 
         for j in range(len_setnow):
             # split setnow and get every single element in setnow, then apply the logic
+            # variables_index = setnow[j] like (1,2,3)
             vindex = setnow[j]
             vv = list(map(lambda x: x - 1, list(vindex)))
             dc_p = dc.index(vv)
+            # union_set = tn.any(N, which=list(map(lambda x: x - 1, list(vindex))))  # map function(function, input)
+            # inter_set = tn.all(N, which=list(map(lambda x: x - 1, list(vindex))))
+
+            # sobol_p = tn.sobol(t, mask=tn.only(inter_set)).tolist()
+            # sobol_c = tn.sobol(t, mask=tn.only(union_set)).tolist()
+            # sobol_t = tn.sobol(t, union_set).tolist()
+            # sobol_s = tn.sobol(t, inter_set).tolist()
+
             sobol_p = ind.variance_component(vv)
             sobol_c = ind.closed_index(vv)
             sobol_t = ind.total_index(vv)
@@ -171,20 +225,23 @@ def data_reading(N, nfix, t, listvariable=None):
             sobolset['total'].append(sobol_t)
             sobolset['super'].append(sobol_s)
 
-        # tn.sobol(t, x & (y | z)) / tn.sobol(t, y | z); or tn.sobol(t, (x | y) & z) / tn.sobol(t, z)
-        # get relative importance values
+            # tn.sobol(t, x & (y | z)) / tn.sobol(t, y | z); or tn.sobol(t, (x | y) & z) / tn.sobol(t, z)
+            # get relative importance values
         setfull = list(itertools.combinations(listvariable, setOrder))
-        len_setfull = len(setfull)
+        len_setfull = len(setfull)  # C(2,7) = 21
         relativeOrders = []
         for j in range(len_setfull):
+            # vindex: [1,6]
             vindex = setfull[j]
+            # [2,3,4,5], delete removes the elements with certain index
             temp = listvariable
             for m in range(len(vindex)):
-                vrest = np.delete(temp, list(temp).index(vindex[m]))
+                vrest = np.delete(temp, list(temp).index(vindex[m]))  # [3,4]
                 temp = vrest
             inter_set = tn.any(N, which=list(map(lambda x: x - 1, list(vindex))))
             relative_index = []
-            for k in range(len(vrest)):
+            for k in range(len(vrest)): # 0,1,2,3
+                # nmset = vindex  # [1,6]
                 rela = []
                 dnmset = list(itertools.combinations(vrest, k + 1))
                 for m in range(len(dnmset)):
@@ -206,7 +263,21 @@ def data_reading(N, nfix, t, listvariable=None):
     relativeAll.append(relativeInOrder)
 
     sobolJson = {'order': N, 'od': n, 'chosenorder': inputorder, 'nodes': sobolAll, 'relatives': relativeAll}
-    print('computing this index took only {:g}s'.format(time.time() - start))
+    print('computing this index took only {:g}s'.format(time.time() - start4))
+
+    # with open('./data/data3.json', 'w', encoding='utf-8') as f:
+    #     json.dump(sobolJson, f, ensure_ascii=False, indent=2)
 
     return json.dumps(sobolJson)
+
+
+
+
+
+
+
+# def ping_pong():
+#     return jsonify('pong-pong-pong!')
+
+
 

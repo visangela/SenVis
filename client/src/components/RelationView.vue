@@ -1,7 +1,7 @@
 <template>
     <div id="relation-view">
         <b-row class="relation-view-container">
-            <b-col cols="11" class="indices-container">
+            <b-col cols="10" class="indices-container">
                 <b-col class="main-cols">
                     <b-row class="button">
                         <b-col class="button-super" cols="3">
@@ -24,7 +24,7 @@
 
                 </b-col>
             </b-col>
-            <b-col cols="1" class="label-container">
+            <b-col cols="2" class="label-container">
                 <b-row class="button">
                     <b-col class="button-label">
                         <p><b>| Labels |</b></p>
@@ -150,10 +150,10 @@
             const body = document.body;
             const screenWidth = body.scrollWidth, screenHeight = body.scrollHeight;
             this.margins = {top: 10, right: 0, bottom: 60, left: 0};
-            this.width = (screenWidth*8/12)*11/12 - this.margins.left - this.margins.right;
-            this.marginlL = {top: 10, right: 0, bottom: 60, left: 3};
+            this.width = (screenWidth*8/12)*10/12 - this.margins.left - this.margins.right;
+            this.marginlL = {top: 10, right: 20, bottom: 60, left: 8};
             this.height = (screenHeight-65) - this.margins.top - this.margins.bottom;
-            this.widthL = (screenWidth*8/12)/12 - this.marginlL.left - this.marginlL.right;
+            this.widthL = (screenWidth*8/12)*2/12 - this.marginlL.left - this.marginlL.right;
 
             let svg = d3.select("svg#v-parallel")
                 .attr("height", this.height + this.margins.top + this.margins.bottom)
@@ -181,7 +181,7 @@
 
             this.glabel = svglabel.append("g")
                 .attr("transform", "translate(" + this.marginlL.left + "," + this.marginlL.top + ")")
-                .attr('class', 'super');
+                .attr('class', 'label');
 
 
 
@@ -428,7 +428,7 @@
                     .attr("transform", function (d) {
                         return ("translate(" + (90) + "," + (y(d.name) + yScale.step()/2) + ")")
                     })
-                    .style("font-size", 14)
+                    .style("font-size", 18)
                     .style("opacity", 0);
 
                 let barsSuperbg = this.gsuper
@@ -482,7 +482,7 @@
                     .attr("transform", function (d) {
                         return ("translate(" + (width*3/4 - 90) + "," + (y(d.name) + yScale.step()/2) + ")")
                     })
-                    .style("font-size", 14)
+                    .style("font-size", 18)
                     .style("opacity", 0);
 
                 let barsClosedbg = this.gclosed
@@ -534,7 +534,7 @@
                     .attr("transform", function (d) {
                         return ("translate(" + (width*3/8) + "," + (y(d.name) + yScale.step()/2) + ")")
                     })
-                    .style("font-size", 14)
+                    .style("font-size", 18)
                     .style("opacity", 0);
 
                 let barsSobolbg = this.gsobol
@@ -883,7 +883,7 @@
                     .enter()
                     .append("text")
                     .attr("x", this.widthL/2)
-                    .attr("y", 9/3 )
+                    .attr("y", 5 )
                     .text(function (d) {
                         return (d.name)
                     })
@@ -893,7 +893,7 @@
                     .attr("transform", function (d) {
                         return ("translate(" + (d.dc > 0? -10 : 10) + "," + (y(d.name) + yScale.bandwidth()/2) + ")")
                     })
-                    .style("font-size", 10)
+                    .style("font-size", 15)
                     .style('opacity', 1)
 
 
@@ -1073,7 +1073,7 @@
 
                     labels
                         .style("font-size", function (label_d) {
-                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 14: 5
+                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 20: 10
                         })
                         .style("fill", function (label_d) {
                             return label_d.name === elemData.id ? '#555' : color[0];
@@ -1178,7 +1178,7 @@
 
                     labels
                         .style("font-size", function (label_d) {
-                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 14: 5
+                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 20 : 10
                         })
                         .style("fill", function (label_d) {
                             return label_d.name === elemData.id ? '#555' : color[0];
@@ -1268,7 +1268,7 @@
                         return 0.2
                     })
                     linkTotal.style('stroke',color_links[2]).style('stroke-opacity', 0.1)
-                    labels.style("font-size", 9).style("fill",'#111').style('opacity', 1)
+                    labels.style("font-size", 15).style("fill",'#111').style('opacity', 1)
                     .attr("transform", function (label_d) {
                         return ("translate(" + (label_d.dc > 0? -10 : 10) + "," + (y(label_d.name) + yScale.bandwidth()/2) + ")")
                     })
@@ -1457,7 +1457,7 @@
 
                     labels
                         .style("font-size", function (label_d) {
-                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 14 : 5
+                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 20 : 10
 
                         })
                         .style("fill", function (label_d) {
@@ -1564,7 +1564,7 @@
 
                     labels
                         .style("font-size", function (label_d) {
-                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 14 : 5
+                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 20 : 10
                         })
                         .style("fill", function (label_d) {
                             return label_d.name === elemData.id ? '#555' : color[1];
@@ -1653,7 +1653,7 @@
                         return 0.2
                     })
                     linkTotal.style('stroke',color_links[2]).style('stroke-opacity', 0.1)
-                    labels.style("font-size", 9).style("fill",'#111').style('opacity', 1)
+                    labels.style("font-size", 15).style("fill",'#111').style('opacity', 1)
                         .attr("transform", function (label_d) {
                         return ("translate(" + (label_d.dc > 0? -10 : 10) + "," + (y(label_d.name) + yScale.bandwidth()/2) + ")")
                     })
@@ -1843,7 +1843,7 @@
 
                     labels
                         .style("font-size", function (label_d) {
-                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 14 : 5
+                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 20 : 10
                         })
                         .style("fill", function (label_d) {
                             return label_d.name === elemData.id ? '#555' : superToHighlight.indexOf(label_d.name) >= 0 ? color[1] : closedToHighlight.indexOf(label_d.name) >= 0 ? color[0] : "#111"; 
@@ -1949,7 +1949,7 @@
 
                     labels
                         .style("font-size", function (label_d) {
-                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 14 : 5
+                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 20 : 10
                         })
                         .style("fill", function (label_d) {
                             return label_d.name === elemData.id ? '#555' : superToHighlight.indexOf(label_d.name) >= 0 ? color[1] : closedToHighlight.indexOf(label_d.name) >= 0 ? color[0] : "#111";
@@ -2038,7 +2038,7 @@
                         return 0.2
                     })
                     linkTotal.style('stroke',color_links[2]).style('stroke-opacity', 0.1)
-                    labels.style("font-size", 9).style("fill",'#111').style('opacity', 1)
+                    labels.style("font-size", 15).style("fill",'#111').style('opacity', 1)
                         .attr("transform", function (label_d) {
                         return ("translate(" + (label_d.dc > 0? -10 : 10) + "," + (y(label_d.name) + yScale.bandwidth()/2) + ")")
                         })
@@ -2091,7 +2091,7 @@
 
                     labels
                         .style("font-size", function (label_d) {
-                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 14 : 5
+                            return nodesToHighlight.indexOf(label_d.name) >= 0 ? 20 : 10
                         })
                         .style("fill", function (label_d) {
                             return label_d.name === elemData.id && label_d.name === elemData.id? color[3] : label_d.name === elemData.id ? '#555' : superToHighlight.indexOf(label_d.name) >= 0 ? color[1] : closedToHighlight.indexOf(label_d.name) >= 0 ? color[0] : color[2];
@@ -2166,7 +2166,7 @@
 
                 function onMouseoutTotal() {
                     linkTotal.style('stroke',color_links[2]).style('stroke-opacity', 0.1)
-                    labels.style("font-size", 9).style("fill",'#111').style('opacity', 1)
+                    labels.style("font-size", 15).style("fill",'#111').style('opacity', 1)
                         .attr("transform", function (label_d) {
                         return ("translate(" + (label_d.dc > 0? -10 : 10) + "," + (y(label_d.name) + yScale.bandwidth()/2) + ")")
                          })
@@ -2212,10 +2212,10 @@
         margin-left: 0px;
     }
 
-    h6 {
+    /* h6 {
         margin-bottom: 0px;
         font-size: 20px;
-    }
+    } */
 
     hr {
         margin-top: 1px;
@@ -2318,7 +2318,7 @@
     }
 
     .btn-sm, .btn-group-sm > .btn {
-        font-size: 18px !important;
+        font-size: 20px !important;
     }
 
     path[Attributes]  {

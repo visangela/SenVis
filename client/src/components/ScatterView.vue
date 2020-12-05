@@ -10,6 +10,7 @@
             </div>
         </div>
         <b-container class="scatter-view-container">
+            
             <svg id="scatter">
             </svg>
         </b-container>
@@ -20,6 +21,8 @@
     import * as d3 from "d3";
     import _ from "lodash";
     import {combinations} from '@/functionality/permutations'
+    
+    
 
     export default {
         name: "ScatterView",
@@ -27,6 +30,7 @@
             relativeList: Array,
             items: Array,
             variableList: Array,
+            variableValue: Array,
             N: Number,
             input: Array,
         },
@@ -36,6 +40,7 @@
                 title: "Relative View",
                 lowerRange: 0,
                 vlist: this.variableList,
+                vValue: this.variableValue,
                 values: this.items,
                 vrelatives: this.relativeList,
                 vinput: this.input,
@@ -137,11 +142,16 @@
 
             this.yAxisUp = d3.axisLeft()
                 .scale(y1)
-                .ticks(5)
+                .ticks(5);
+                
 
             this.yAxisDown = d3.axisLeft()
                 .scale(y2)
                 .ticks(5);
+
+            // this.vValue.map( d=> {
+            //     d.label = "\"" + d.label + "\""
+            // })
 
             let svg = d3.select("svg#scatter")
                 .attr("height", this.height + this.margins.top + this.margins.bottom)
@@ -150,8 +160,9 @@
             let gg = svg.append("g")
                 .attr("transform", "translate(" + this.margins.left + "," + this.margins.top + ")");
 
+
             this.gbarup = gg.append('g')
-                .attr('class', 'bars');
+                .attr('class', 'bars')
 
             this.gbardown = gg.append('g')
                 .attr('class', 'bars');
@@ -168,20 +179,27 @@
         methods: {
             getNodes(n) { // n = this.od only the first 4-order relations are plotted
                 console.log(this.vlist)
-                console.log(this.values, n)
+                console.log(this.values, n, this.vValue)
                 let acc_nodes = 0;
                 for (let i = 0; i < n; i++) {
                     let order = i + 1;
                     let node = {};
-
+                    
                     for (let j = 0; j < this.vlist[i].length; j++) {
                         let v_name = this.vlist[i][j];
+                        // console.log(v_name.toString())
                         let sobol_value = this.values[i]['sobol'][j];
                         let sobol_total = this.values[i]['total'][j];
                         let relative_value = this.vrelatives[i][j];
+                        let v_label = ''
+                        if (i < 1) {
+                            v_label = this.vValue[this.vlist[i][j].toString()-1]['name'];
+                        }
+                        
 
                         node = {
                             "name": v_name.join("_"),
+                            "label": v_label,
                             "sobol": sobol_value,
                             "total": sobol_total,
                             "relative": relative_value,
@@ -241,9 +259,11 @@
             },
 
             drawChart: function() {
+                
                 // ==============================================
                 // ============== pre-drawing ===================
                 // ==============================================
+                // console.log(this.vlist) // 1,2,3,12,13,...
                 let nodesBarUp = _.cloneDeep(this.nodes)
                     .filter((value, index, self) => {
                         return index < this.vlist[0].length
@@ -253,10 +273,13 @@
                         return index < this.vlist[0].length
                     });
 
+                
                 let allNodes = nodesBarUp
                     .map(function (d) {
                         return d.name
                     });
+
+                console.log(allNodes, this.vValue)
 
                 const color = ['#2ca8bd', '#28a744', '#a157a6', '#dc3445'];
 
@@ -285,12 +308,14 @@
                     let yup = 90;
                     return d.xud = xx, d.yu = yup;
                 })
+                console.log(nodesBarUp)
 
                 nodesBarDown.map(d => {
                     let xx = x(d.name) + xScale.bandwidth() / 2;
                     let ydown = this.height - 60;
                     return d.xud = xx, d.yd = ydown;
                 })
+
 
                 let tooltip1 = d3.select("body").append("div")
                     .attr("id", "tooltip1")
@@ -319,6 +344,43 @@
                     .style("fill", 'grey')
                     .style('opacity', 1)
 
+                
+
+                let barupx = this.gbarup
+                    .append('g')
+                    // .attr("class", "x axis")
+                    // .selectAll("text")
+                    // .data(nodesBarUp)
+                    // .enter()
+                    // .append("text")
+                    
+                    // .attr("x", function (d) {
+                    //     return (x(d.name) + xScale.bandwidth()/2)
+                    // })
+                    // .attr("y", function (d) {
+                    //     return 90 - size(d.sobol) * 3
+                    // })
+                    
+                    // .text(function (d) {
+                    //     console.log(d.label)
+                    //     return (d.label)
+                        
+                    // })
+                    
+                for (let i = 0; i < nodesBarUp.length; i++) {
+                    let text = nodesBarUp[i]["label"]
+                    let xu = x(nodesBarUp[i]['name']) - 50 + xScale.bandwidth()/2
+                    let yu = 40 - size(nodesBarUp[i]["sobol"])*3
+                    barupx.append("foreignObject")
+                    .attr("x", xu)
+                    .attr("y", yu)
+                    .attr("width", 100)
+                    .attr("height", 100)
+                    .text(text)
+                    .style("font-size", 25)
+                    .style("color", "black");
+                }
+
                 let barupforclick = this.gbarup.selectAll("bars-up")
                     .data(nodesBarUp)
                     .enter()
@@ -334,30 +396,12 @@
                         return (size(1) * 3)
                     })
                     .style("fill", 'grey')
-                    .style('opacity', 0)
+                    .style('opacity', 0.1)
                     .on('click', onClickBarUp)
                     .on('dblclick', dblClickBars);
 
-                let barupx = this.gbarup.append('g')
-                    .attr("class", "x axis")
-                    .selectAll("text")
-                    .data(nodesBarUp)
-                    .enter()
-                    .append("text")
-                    .attr("x", function (d) {
-                        return (x(d.name) + xScale.bandwidth()/2)
-                    })
-                    .attr("y", function (d) {
-                        return 90 - size(d.sobol) * 3
-                    })
-                    .text(function (d) {
-                        return (d.name)
-                    })
-                    .style("text-anchor", "start")
-                    .attr("dx", "-.3em")
-                    .attr("dy", "-.6em")
-                    .style("font-size", 18)
-                    .style("fill", 'grey');
+                // MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+                
 
                 let self = this;
                 let bardown = this.gbardown.selectAll("bars-down")
@@ -377,6 +421,46 @@
                     .style("fill", 'grey')
                     .style('opacity', 1)
 
+                
+
+                let bardownx = this.gbardown
+                    .append('g')
+                    // .attr("class", "x axis")
+                    // .selectAll("text")
+                    // .data(nodesBarDown)
+                    // .enter()
+                    // .append("text")
+                    // .attr("x", function (d) {
+                    //     return (x(d.name) + xScale.bandwidth()/2)
+                    // })
+                    // .attr("y", function (d) {
+                    //     return self.height - 25 + size(d.total) * 3
+                    // })
+                    // .text(function (d) {
+                    //     return (d.name)
+                    // })
+                    // .style("text-anchor", "start")
+                    // .attr("dx", "-.3em")
+                    // .attr("dy", "-.2em")
+                    // .style("font-size", 25)
+                    // .style("fill", 'grey');
+
+                for (let i = 0; i < nodesBarDown.length; i++) {
+                    let text = nodesBarDown[i]["label"]
+                    let xd = x(nodesBarDown[i]['name']) - 50 + xScale.bandwidth()/2
+                    let yd = self.height - 52 + size(nodesBarDown[i]['total']) * 3
+                    bardownx.append("foreignObject")
+                    .attr("x", xd)
+                    .attr("y", yd)
+                    .attr("width", 100)
+                    .attr("height", 100)
+                    .text(text)
+                    .style("font-size", 25)
+                    .style("color", "black");
+                }
+
+                MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+
                 let bardownforclick = this.gbardown.selectAll("bars-down")
                     .data(nodesBarDown)
                     .enter()
@@ -392,40 +476,22 @@
                         return (size(1) * 3)
                     })
                     .style("fill", 'grey')
-                    .style('opacity', 0)
+                    .style('opacity', 0.1)
                     .on('click', onClickBarDown)
                     .on('dblclick', dblClickBars);
-
-                let bardownx = this.gbardown.append('g')
-                    .attr("class", "x axis")
-                    .selectAll("text")
-                    .data(nodesBarDown)
-                    .enter()
-                    .append("text")
-                    .attr("x", function (d) {
-                        return (x(d.name) + xScale.bandwidth()/2)
-                    })
-                    .attr("y", function (d) {
-                        return self.height - 35 + size(d.total) * 3
-                    })
-                    .text(function (d) {
-                        return (d.name)
-                    })
-                    .style("text-anchor", "start")
-                    .attr("dx", "-.3em")
-                    .attr("dy", "-.2em")
-                    .style("font-size", 18)
-                    .style("fill", 'grey');
 
                 let barupy = this.gbarup.append('g')
                     .attr("class", "y axis")
                     .call(this.yAxisUp)
-                    .attr("transform", 'translate(-20,0)');
+                    .attr("transform", 'translate(-25,0)')
+                    .style("font-size","15px");
+                    // .attr("font-size", '20px');
                 
                 let bardowny = this.gbardown.append('g')
                     .attr("class", "y axis")
                     .call(this.yAxisDown)
-                    .attr("transform", 'translate(-20,30)')
+                    .attr("transform", 'translate(-25,30)')
+                    .style("font-size","15px");
 
                 // ============================================
                 //             draw the circles
@@ -620,7 +686,7 @@
                             }
                         })
 
-                    barupx
+                    barupforclick
                         .style("fill", function (n) {
                             if (n.active === true) {
                                 return color[3]
@@ -660,7 +726,7 @@
                             }
                         })
 
-                    bardownx
+                    bardownforclick
                         .style("fill", function (n) {
                             if (n.active === true) {
                                 return color[2]
@@ -821,7 +887,7 @@
                             }
                         })
 
-                    barupx
+                    barupforclick
                         .style("fill", function (n) {
                             if (n.active === true) {
                                 return color[3]
@@ -858,7 +924,7 @@
                             }
                         })
 
-                    bardownx
+                    bardownforclick
                         .style("fill", function (n) {
                             if (n.active === true) {
                                 return color[2]
@@ -1010,7 +1076,7 @@
                         })
                         .style('opacity', 1)
                         
-                    barupx
+                    barupforclick
                         .style("fill", function (n) {
                             if (n.active === true) {
                                 return color[3]
@@ -1037,7 +1103,7 @@
                         })
                         .style('opacity', 1)
 
-                    bardownx
+                    bardownforclick
                         .style("fill", function (n) {
                             if (n.active === true) {
                                 return color[2]
@@ -1273,7 +1339,7 @@
                         })
                             .style('opacity', 1)
 
-                        barupx.style("fill", function (bar_d) {
+                        barupforclick.style("fill", function (bar_d) {
                             if (bar_d.clicked === true) {
                                 bar_d.clicked = false
                                 return color[3]
@@ -1293,7 +1359,7 @@
                         })
                             .style('opacity', 1)
 
-                        bardownx.style("fill", function (n) {
+                        bardownforclick.style("fill", function (n) {
                             return n.clicked === true? color[2] : "grey"
                         })
                     }
@@ -1313,7 +1379,7 @@
                         })
                             .style('opacity', 1)
 
-                        bardownx.style("fill", function (bar_d) {
+                        bardownforclick.style("fill", function (bar_d) {
                             if (bar_d.clicked === true) {
                                 bar_d.clicked = false
                                 return color[2]
@@ -1332,7 +1398,7 @@
                         })
                             .style('opacity', 1)
 
-                        barupx.style("fill", function (n) {
+                        barupforclick.style("fill", function (n) {
                             return n.clicked === true? color[3] : "grey"
                         })
                     }
@@ -1342,7 +1408,7 @@
                             return "grey"
                         })
                             .style('opacity', 1)
-                        bardownx.style("fill",function (bar_d) {
+                        bardownforclick.style("fill",function (bar_d) {
                             bar_d.active = false
                             return "grey"
                         })
@@ -1351,7 +1417,7 @@
                             return "grey"
                         })
                             .style('opacity', 1)
-                        barupx.style("fill", function (bar_d) {
+                        barupforclick.style("fill", function (bar_d) {
                             bar_d.active = false
                             return "grey"
                         })
@@ -1396,7 +1462,7 @@
                             }
                         })
 
-                    barupx
+                    barupforclick
                         .style("fill", function (bar_d) {
                             if (bar_d.clicked === true && bar_d.id === elemData.id) {
                                 return color[3]
@@ -1508,7 +1574,7 @@
                             }
                         })
 
-                    bardownx
+                    bardownforclick
                         .style("fill", function (n) {
                              if (highlightedBarDown.indexOf(n.id) >= 0) {
                                 n.active = true
@@ -1557,7 +1623,7 @@
                             }
                         })
 
-                    bardownx
+                    bardownforclick
                         .style("fill", function (bar_d) {
                             if (bar_d.clicked === true && bar_d.id === elemData.id) {
                                 return color[2]
@@ -1668,7 +1734,7 @@
                             }
                         })
 
-                    barupx
+                    barupforclick
                         .style("fill", function (n) {
                             if (highlightedBarUp.indexOf(n.id) >= 0) {
                                 n.active = true
@@ -1690,7 +1756,7 @@
                         })
                         .style('opacity', 1)
 
-                    barupx
+                    barupforclick
                         .style("fill", "grey")
 
                     bardown
@@ -1701,7 +1767,7 @@
                         })
                         .style('opacity', 1)
 
-                    bardownx
+                    bardownforclick
                         .style("fill", "grey")
 
 
@@ -1783,14 +1849,14 @@
         padding-left: 5px;
     }
 
-    h6 {
+    /* h6 {
         margin-bottom: 0px;
         font-size: 20px;
-    }
+    } */
 
     p {
         margin-bottom: 5px;
-        font-size: 18px;
+        font-size: 22px;
         color: grey;
     }
 
@@ -1832,7 +1898,7 @@
 
     /* The slider itself */
     .slider {
-        width: 55%; /* Full-width */
+        width: 43%; /* Full-width */
         /*height: 25px; !* Specified height *!*/
         background: #d3d3d3; /* Grey background */
         outline: none; /* Remove outline */
@@ -1852,7 +1918,8 @@
     }
 
     .btn-sm, .btn-group-sm > .btn {
-        font-size: 18px !important;
+        font-size: 20px !important;
     }
+
 
 </style>
